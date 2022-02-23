@@ -8,9 +8,7 @@ import Detail from './component/Detail'
 function App() {
   return (
     <BrowserRouter>
-  <div className="App">
-      <h1>Henry Food</h1>
-    </div>
+  
     <Routes>
       <Route  path= {'/'} element= {<Landing/>} />
       <Route path={'/recipe'} element={<CreateRecipe/>}/>

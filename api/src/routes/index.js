@@ -4,7 +4,7 @@ const { Router } = require('express');
 const axios = require ('axios');
 const { Recipe, Diet } = require("../db")
 const {
-    YOUR_API_KEY
+    YOUR_API_KEY2
   } = process.env;
 
 
@@ -14,7 +14,7 @@ const router = Router();
 // Ejemplo: router.use('/auth', authRouter);
 const getInfo = async () => {
   
-    const urlApi = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?apiKey=3c80fbce03e748f783aa9dad3501a649&number=100&addRecipeInformation=true`)
+    const urlApi = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?apiKey=${YOUR_API_KEY2}&number=100&addRecipeInformation=true`)
     const apiDatas = urlApi.data.results 
     const infoApi = await apiDatas.map(el => {
      
@@ -37,25 +37,27 @@ const getInfo = async () => {
 
 
 const getDbInfo = async () => {
-    return await Recipe.findAll({ 
+   const allRecipesDb = await Recipe.findAll({ 
         include:
         {
             model: Diet,
             as: 'Diets',
-            attributes:['nombre'],
+            attributes:['name'],
             through: {
                 attributes: [],
             },
         },
     })
-    
+    console.log(`aqui estan las recetas de${allRecipesDb}`)
+    return allRecipesDb
 }
-  
+
 
 const getAllRecipes = async () => {
     const apiInfo = await getInfo();
     const dbInfo = await getDbInfo();
     const infoTotal = dbInfo.concat(apiInfo); // <- devuelve un arreglo  apiInfo
+    
     return infoTotal; 
 }
     
@@ -68,9 +70,9 @@ router.get('/recipes', async (req,res) => {
     if (name){
         console.log(1)
         let recipeName =  recipesTotal.filter(e => e.name.toLowerCase().includes(name.toLowerCase())) // <- .toLowerCase().includes(name.toLowerCase())
-        recipeName.length ? 
-        res.status(200).send(recipeName) :
-        res.status(404).send('No hay receta Disponible')
+        recipeName.length <0 ? 
+        res.status(404).send('No hay receta Disponible'):
+        res.status(200).send(recipeName) 
     }
     else{
         console.log(2)
@@ -82,43 +84,29 @@ router.get('/recipes', async (req,res) => {
 
 
 
-router.get('/types', async(req,res)=>{
-    console.log(0)
-    let recipeTotal = await getAllRecipes();//traigo todas las recetas
-    let arrayDietas = []
-    let defaultDiet= [
+router.get('/types', async (req, res) => {
+    const diets = [
         "gluten free",
+        "dairy free",
+        "paleolithic",
         "ketogenic",
-        "vegetarian",
-        "lacto vegetarian",
-        "ovo vegetarian",
+        "lacto ovo vegetarian",
         "vegan",
-        "pescetarian",
-        "paleo",
+        "pescatarian",
         "primal",
-        "low fodmap",
-        "whole30",]
+        "fodmap friendly",
+        "whole 30",
+    ]
 
-    recipeTotal.forEach(el=>{
-        console.log(1)
-        el.diets.forEach(el=>{
-            if(!arrayDietas.includes(el)){
-                arrayDietas.push(el)
-            }
+    diets.forEach(el => {
+        Diet.findOrCreate({ 
+            where: { name: el }  //por cada tipo de dieta
         })
     })
-    console.log(2)
-    arrayDietas.length?
-    arrayDietas.map(el=>{
-        Diet.create({nombre:el})
-        
-    })
-    :defaultDiet.map(el=>{
-        Diet.create({nombre:el})
-        res.send('Dietas agregadas en Base de datos')
-    })
 
-
+    const allTypes = await Diet.findAll()
+    res.send(allTypes)
+    console.log(allTypes)
 })
 
    
@@ -127,35 +115,39 @@ router.get('/types', async(req,res)=>{
  router.post('/recipe', async (req,res) => {
      console.log(0)
 let {
-        nombre,
-        resumenplato,
-        puntuacion,
-        comidaSaludable,
-        pasoapaso,
-        diet,
+        name,
+        summary,
+        spoonacularScore,
+        healthScore,
+        steps,
+        diets,
+        image,
         createdInDb, 
     }= req.body
     
 let recipeCreated = await Recipe.create({
-    nombre,
-    resumenplato,
-    puntuacion,
-    comidaSaludable,
-    pasoapaso,
+    name,
+    summary,
+    spoonacularScore,
+    healthScore,
+    steps,
+    image,
     createdInDb,
     
 })
 
 let dietDb = await Diet.findAll({
     where: {
-        nombre: diet
+        name: diets
     }
-
 })
-console.log(req.body)
+
 recipeCreated.addDiet(dietDb) ?
 res.status(200).send ('Receta creada con exito') :
 res.status(404).send ("Error en cargar la receta")
+
+console.log(req.body)
+
  })
 
 

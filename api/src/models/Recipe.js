@@ -10,22 +10,25 @@ module.exports = (sequelize) => {
       allowNull: false,  
       primaryKey: true   
     },
-    nombre:{
+    name:{
       type: DataTypes.STRING,
       allowNull: false
     },
-    resumenplato:{
+    summary:{
       type: DataTypes.STRING,
       allowNull: false 
     },
-    puntuacion:{
+    spoonacularScore:{
       type: DataTypes.STRING,
     },
-    comidaSaludable:{
+    healthScore:{
       type: DataTypes.STRING, 
     },
-    pasoapaso:{
+    steps:{
       type: DataTypes.STRING,
+    },
+    image:{
+      type: DataTypes.TEXT,
     },
     createdInDb:{
       type: DataTypes.BOOLEAN,

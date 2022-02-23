@@ -1,15 +1,16 @@
 
 import {useEffect, useState}from 'react'; 
 import {useDispatch, useSelector,} from 'react-redux'
-import {getRecipes, filterByDiets, filterOrder, filterByScore} from '../actions';
+import {getRecipes, filterByDiets, filterOrder, filterByScore, getDiets} from '../actions';
 import {Link} from 'react-router-dom'
 import Card from './Card';
 import Paginado from './paginado';
 import SearchBar from './Searchbar';
-
+import  '../component/cssComponents/Home.css'
 export default function Home () {
     const dispatch = useDispatch()
     const allRecipe = useSelector ((state) => state.recipes)
+    const alldiets= useSelector ((state)=> state.diets)
     const [order, setOrder]= useState('')
     const [currentP, setCurrenP] = useState(1) // pagina actual y cual sera la pagina actual
     const [recipePerPage] = useState(9)  // cantidad recetas por pag
@@ -27,8 +28,9 @@ export default function Home () {
 
 useEffect(() => {
     console.log("llega la recipe")
+    dispatch(getDiets())
     dispatch(getRecipes())
-},[dispatch])  
+},[dispatch])
 
 
 
@@ -36,6 +38,7 @@ function handleRecipe (e) {
     e.preventDefault()
     dispatch(getRecipes(e))
 }
+
 function handleFilterDiets (e) {
     dispatch(filterByDiets(e.target.value))
     
@@ -55,10 +58,13 @@ function handleScore (e) {
 
 
 return (
-    <div>
+    <div className='containerhome'>
             <h1>
                AGUANTE EL BAJOOOON
             </h1>
+            <div className='fixed'>
+
+            
             <Link to= '/recipe'> Crear Receta</Link>
         
             <button onClick ={(e) =>handleRecipe(e)}>
@@ -68,18 +74,13 @@ return (
             <div>
                 <select onChange={(e) => handleFilterDiets(e)} >   
                     <option value='allRecipe'> Tipo de dieta</option>
-                    <option value='allRecipe'>Todas las dietas</option>
-                    <option value='gluten free'> Gluten free</option>                  
-                    <option value='ketongenic'>Ketogenic</option>
-                    <option value='vegetarian'> Vegetarian</option>
-                    <option value='lacto ovo vegetarian'> lacto ovo vegetarian</option>
-                    <option value='vegan'> Vegan</option>
-                    <option value='pescetarian'>Pescetarian</option>
-                    <option value='paleo'>Paleo</option>
-                    <option value='primal'> Primal</option>
-                    <option value='low fodmap'> Low Fodmap</option>
-                    <option value='whole30'> Whole30</option>
-                    <option value='dairy free'> Dairy Free</option>
+                   {
+                       alldiets?.map(el => {
+                           return (
+                               <option key={el.id} name={el.name}>{el.name}</option>
+                           )
+                       })
+                   }
                     
 
                 </select>
@@ -93,22 +94,34 @@ return (
                     <option value='mayorScore'>Mayor puntaje</option>
                     <option value='menorScore'>Menor puntaje</option>
                 </select>
-                <Paginado recipePerPage={recipePerPage} allRecipe={allRecipe.length} paginado={paginado}/> 
-      {
+                <Paginado setCurrenP={setCurrenP} currentP={currentP}recipePerPage={recipePerPage} allRecipe={allRecipe.length} paginado={paginado}/> 
+                </div>
+               <div className='cartas'>
+                {
           currentRecipes?.map( el =>{
               return (
-                  <fragment classname= 'cartas'>
+                  <div  >
              
                <Link to={'/home'}>
-                <Card name={el.name? el.name : el.nombre} img={el.image} diet={el.diets? el.diets : el.diet}  id={el.id}/>
-               </Link>
-             
+                <Card name={el.name? el.name : el.nombre} img={el.image} 
+                diet={
+              
+                 el.diets? el.diets 
+                 : el.Diets.map(e => e.name)
                 
-            </fragment>
+                     
+                    }  
+                    id={el.id}/>
+               </Link>
+            
+                
+            </div>
             
             )
+            
         }) 
      }
+      </div>
             </div>
     </div>
        

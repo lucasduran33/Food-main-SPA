@@ -1,20 +1,33 @@
-import { useEffect , useState} from "react";
+import { useEffect , useState, useMemo} from "react";
 import { Link} from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import { postRecipe, getDiets } from "../actions";
-   
+  
+function validarNumero(parametro){
+    if(!/^[0-9]*$/.test(parametro)){
+        return false
+    }else {
+        return true
+    }
+}
+const validarLetra = (name) => {
+    const regex = new RegExp(/^[A-Z]+$/i);
+    return regex.test(name);
+};
+
 
 export default function RecipeCreate () {
     const dispatch = useDispatch()
-
+    const allDiets = useSelector((state) => state.diets)
     const [error, setErrors] = useState({});   
     const [input, setInput] = useState({
-        nombre:"",
-        resumenplato: "",
-        puntuacion:"",
-        comidaSaludable:"",
-        pasoapaso:"",
-        diet:[],
+        name:"",
+        summary: "",
+        spoonacularScore:"",
+        healthScore:"",
+        steps:"",
+        image:"",
+        diets:[],
         
     })
 useEffect(() => {
@@ -23,12 +36,12 @@ useEffect(() => {
 
 
 function handleCheck(e) {
-    if (e.target.checked){
+    
         setInput({
             ...input,
-            diet:[...input.diet,e.target.value] 
+            diets:[...input.diets,e.target.value] 
         })
-    }  
+    
 }
 function handleSubmit(e) {
     e.preventDefault()
@@ -36,28 +49,48 @@ function handleSubmit(e) {
     dispatch(postRecipe(input))
     alert('Receta creada!')
     setInput({
-        nombre:"",
-        resumenplato: "",
-        puntuacion:"",
-        comidaSaludable:"",
-        pasoapaso:"",
-        diet:[],
+        name:"",
+        summary: "",
+        spoonacularScore:"",
+        healthScore:"",
+        steps:"",
+        image:"",
+        diets:[],
         
     })
 }
 
     function validate(input){
     let error = {}
-    if(!input.nombre){
-        error.nombre = 'Se requiere un nombre'
-    }else if (!input.resumenplato){
-        error.resumenplato= 'Se requiere el resumen del plato'
-    }else if(!input.puntuacion){
-        error.puntuacion= 'Se requiere la puntuacion'
-    } else if(!input.comidaSaludable){
-        error.comidaSaludable = 'Se requiere el nivel de comida saludable'
-    } else if(!input.pasoapaso){
-        error.pasoapaso = 'Se requiere los pasos'
+    if(!input.name){
+        error.name = 'Se requiere un nombre'
+    }if(input.name && !validarLetra(input.name)){
+        error.name = 'Solo Letras permitidas'
+    }if (!input.summary){
+        error.summary= 'Se requiere el resumen del plato'
+    }if(input.summary && !validarLetra(input.summary)){
+        error.summary = 'Solo Letras permitidas'
+    }if(!input.spoonacularScore){
+        error.spoonacularScore= 'Se requiere la puntuacion'
+    }if(input.spoonacularScore > 100){
+        error.spoonacularScore= 'La puntuacion no puede ser mayor a 100'
+    }if (input.spoonacularScore <= 0 ){
+        error.spoonacularScore = 'El score no puede ser  0'
+    }
+    if(!input.healthScore){
+        error.healthScore = 'Se requiere el nivel de comida saludable'
+    }if(input.healthScore > 100){
+        error.healthScore= 'La puntuacion no puede ser mayor a 100'
+    }if (input.healthScore <= 0 ){
+        error.healthScore = 'El nivel saludable no puede ser  0'
+    }
+
+    if(!input.steps){
+        error.steps = 'Se requiere los pasos'
+    }if(input.steps && !validarLetra(input.steps)){
+        error.steps = 'Solo Letras permitidas'
+    }if(!input.image){
+        error.image = 'Campo opcional! '
     }
     return error;
 }
@@ -71,6 +104,46 @@ function handleChange (e){
         [e.target.name] : e.target.value
     }));
 }  
+function handleBox(e) {
+    setInput ({
+        ...input,
+        diets: [...input.diets, e.target.value]
+    })
+    console.log(input.diets)
+}
+function handleDelete (el){
+    setInput({
+        ...input,
+        diets: input.diets.filter (oc => oc !== el )
+    })
+}
+const Disablesubmit= useMemo (() => {
+    if(
+        input.name.length > 0 &&
+        input.name.length < 30 &&
+        validarLetra(input.name)&&
+        input.summary.length > 0 &&
+        input.summary.length < 500 &&
+        validarLetra(input.summary)&&
+        input.steps.length > 0 &&
+        input.steps.length < 500 &&
+        validarLetra(input.steps)&&
+        input.spoonacularScore<= 100 &&
+        input.spoonacularScore>= 1 &&
+        input.healthScore<= 100 &&
+        input.healthScore>= 1 &&
+        input.diets.length >= 1 &&
+        input.diets.length <= 2
+      
+       
+    ){
+        return false;
+    }else {
+        return true;
+    }
+})
+
+
 return (
     <div>
         <Link to= '/Home'>
@@ -80,88 +153,72 @@ return (
         <form  onSubmit={(e)=>handleSubmit(e)}>
             <div> 
                 <label>Nombre:</label>
-                <input type='text' value={input.nombre} name='nombre' onChange={(e) =>handleChange(e)}/>
-                {error.nombre && (
-                    <p>{error.nombre}</p>
+                <input type='text' value={input.name} name='name' onChange={(e) =>handleChange(e)}/>
+                {error.name && (
+                    <p>{error.name}</p>
                 )}
             </div>
             <div>
                     <label>Resumen plato</label>
-                    <input type= 'text' value = {input.resumenplato} name= 'resumenplato' onChange={(e) =>handleChange(e)}/>
-                    {error.resumenplato && (
-                    <p>{error.resumenplato}</p>
+                    <input type= 'text' value = {input.summary} name= 'summary' onChange={(e) =>handleChange(e)}/>
+                    {error.summary && (
+                    <p>{error.summary}</p>
                     )}
             </div>
             <div>
                     <label>Puntuacion</label>
-                    <input type= 'text' value = {input.puntuacion} name= 'puntuacion' onChange={(e) =>handleChange(e)}/>
-                    {error.puntuacion && (
-                    <p>{error.puntuacion}</p>
+                    <input type= 'number' min="1" value = {input.spoonacularScore} name= 'spoonacularScore' onChange={(e) =>handleChange(e)}/>
+                    {error.spoonacularScore && (
+                    <p>{error.spoonacularScore}</p>
                     )}
             </div>
             <div>
                     <label>Comida saludable</label>
-                    <input type= 'text' value = {input.comidaSaludable} name= 'comidaSaludable' onChange={(e) =>handleChange(e)}/>
-                    {error.comidaSaludable && (
-                    <p>{error.comidaSaludable}</p>
+                    <input type= 'number' min="1" value = {input.healthScore} name= 'healthScore' onChange={(e) =>handleChange(e)}/>
+                    {error.healthScore && (
+                    <p>{error.healthScore}</p>
                     )}
                     </div>
                     <div>
                     <label>Paso a Paso</label>
-                    <input type= 'text' value = {input.pasoapaso} name= 'pasoapaso' onChange={(e) =>handleChange(e)}/>
-                    {error.pasoapaso && (
-                    <p>{error.pasoapaso}</p>
+                    <input type= 'text' value = {input.steps} name= 'steps' onChange={(e) =>handleChange(e)}/>
+                    {error.steps && (
+                    <p>{error.steps}</p>
                     )}
             </div>
             <div>
-                 <label>Dietas</label> 
-                
-                  <label>
-                 Gluten Free
-                 <input type='checkbox' name='gluten free' value='gluten free' onChange={(e)=> handleCheck(e)}/>
-                 </label>
-                 <label>
-                 Dairy Free
-                 <input type='checkbox' name='dairy free' value='dairy free' onChange={(e)=> handleCheck(e)}/>
-                 </label>
-                 <label>
-                 Lacto Ovo Vegetarian
-                 <input type='checkbox' name='lacto ovo vegetarian' value='lacto ovo vegetarian'onChange={(e)=> handleCheck(e)} />
-                 </label>
-                 <label>
-                    Vegan
-                 <input type='checkbox' name='Vegan' value='vegan' onChange={(e)=> handleCheck(e)} />
-                 </label>
-                 <label>
-                 Paleolithic
-                 <input type='checkbox' name='paleolithic' value='paleolithic' onChange={(e)=> handleCheck(e)} />
-                 </label>
-                 <label>
-                    Vegan
-                 <input type='checkbox' name='Vegan' value='vegan' onChange={(e)=> handleCheck(e)} />
-                 </label>
-                 <label>
-                 Primal
-                 <input type='checkbox' name='primal' value='primal' onChange={(e)=> handleCheck(e)} />
-                 </label>
-                 <label>
-                 Pescatarian
-                 <input type='checkbox' name='pescatarian' value='pescatarian' onChange={(e)=> handleCheck(e)}/>
-                 </label>
-                 <label>
-                 Fodmap Friendly
-                 <input type='checkbox' name='fodmap friendly' value='fodmap friendly' onChange={(e)=> handleCheck(e)} />
-                 </label>
-                 <label>
-                 Whole 30
-                 <input type='checkbox' name='whole 30' value='whole 30' onChange={(e)=> handleCheck(e)} />
-                 </label>
-
-                  <ul><li>{input.diet.map(e => e + " ,")}</li></ul>
-                  <button type='submit'>Crear Receta</button>
+                <label>Imagen</label>
+                <input type= 'text' value = {input.image} name= 'image' onChange={(e) =>handleChange(e)}/>
+               
             </div>
+            <div>
+               <select  onChange={(e) => handleBox(e)}>
+                   <option disabled value='Dietas' >  Tipo de dietas  </option>
+                     {
+          allDiets?.map(el => {
+            return (
+                <option key={el.id} value={el.name} >  {el.name} </option>
+            )
+        })
+                     }           
+               
+                   </select>
+            </div>
+            <div className='delete'>
+
+
+   </div>
+                  <button type='submit' disabled={Disablesubmit}>Crear Receta</button>
+               
+                
+
             
         </form>
+        {input.diets.map(el => 
+   <div  className='telede'> 
+       <p>{el}</p>
+       <button  className='telede' onClick={()=>handleDelete(el)}>x</button>
+   </div>)}
     </div>
                
 )

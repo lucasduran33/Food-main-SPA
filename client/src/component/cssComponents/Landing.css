@@ -1,0 +1,36 @@
+.background{
+    z-index: -1;
+    background-image: url('https://d3aux7tjp119y2.cloudfront.net/images/Fotografiska20ae03778c8b5cb968_org-CMSTemplat.width-1650_2VKcO0k.jpg');
+     
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      width: 100vw;
+      height: 100vh;
+      margin:0;
+      padding:0;
+    }   
+    
+.btnlanding{
+    position:absolute;
+    bottom:40%;
+    left:480px;
+    width: 30%;
+    z-index: 3;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--btn-gray);
+    color: rgb(255, 244, 143);
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 2rem;
+    transition: 0.4s;
+    box-shadow: 8px 8px 12px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+  }
+  .btnlanding:hover {
+    background-color: #db6363;
+    color: rgb(255, 244, 143)
+  } 
+
