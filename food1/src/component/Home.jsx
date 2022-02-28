@@ -58,21 +58,26 @@ function handleScore (e) {
 
 
 return (
-    <div className='containerhome'>
-            <h1>
-               AGUANTE EL BAJOOOON
-            </h1>
-            <div className='fixed'>
+    <div className=''>
+         
+            <div>
 
             
-            <Link to= '/recipe'> Crear Receta</Link>
+            
         
-            <button onClick ={(e) =>handleRecipe(e)}>
+            <div className='flex items-center justify-between flex-wrap bg-amber-600 space-x-12 shadow-sm h-15 p-6'>
+            <SearchBar/>
+            <Link to= '/recipe'>
+                 <button className='  w-full block flex-grow lg:flex lg:items-center lg:w-auto'>
+                 Crear Receta
+
+                 </button>
+                 </Link>
+            <button className=' w-full block flex-grow lg:flex lg:items-center lg:w-auto' onClick ={(e) =>handleRecipe(e)}>
                 Volver a cargar recetas
             </button>
-            <SearchBar/>
-            <div>
-                <select onChange={(e) => handleFilterDiets(e)} >   
+         
+                <select className=''  onChange={(e) => handleFilterDiets(e)} >   
                     <option value='allRecipe'> Tipo de dieta</option>
                    {
                        alldiets?.map(el => {
@@ -94,6 +99,9 @@ return (
                     <option value='mayorScore'>Mayor puntaje</option>
                     <option value='menorScore'>Menor puntaje</option>
                 </select>
+               
+                </div>
+                <div className='flex  justify-between flex-wrap items-center'>
                 <Paginado setCurrenP={setCurrenP} currentP={currentP}recipePerPage={recipePerPage} allRecipe={allRecipe.length} paginado={paginado}/> 
                 </div>
                <div className='cartas'>

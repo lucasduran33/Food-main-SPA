@@ -14,8 +14,8 @@ export default function Paginado ({recipePerPage,allRecipe,paginado,currentP,set
         setCurrenP(currentP + 1)
     }
     return (
-        <nav>
-            <ul>
+        <nav className='flex-wrap self-center'>
+            <ul  className='flex items-center flex-wrap space-x-4 '>
                 <button disabled={currentP === pageNumbers[0]? true : false} onClick={(e)=> handlePrev(e)}>Prev</button>
                 {pageNumbers && pageNumbers.map(number => (
                     <li  key={number}>
