@@ -28,6 +28,15 @@ export function postRecipe (payload) {
         return response;
     }
 }
+export function putRecipe(payload){
+    return async (dispatch)=>{
+        let json = await axios.put("http://localhost:3001/recipe", payload)
+        return json
+    }
+}
+
+
+
 export function GetNameRecipes(payload){
     return async function (dispatch){
         try{

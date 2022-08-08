@@ -151,6 +151,48 @@ console.log(req.body)
  })
 
 
+ router.put("/recipe", async (req, res)=>{
+    const {
+      
+        name,
+        summary,
+        spoonacularScore,
+        healthScore,
+        steps,
+        diets,
+        image,
+        createdInDb,   
+    } = req.body
+    let getrecipess= await getAllRecipes()
+  let search = getrecipess.filter(e=> e.name === name.toString()) 
+  console.log(search)
+  
+  if(search.length){
+    const result = await Recipe.update(
+      { 
+        dificultad: dificultad? dificultad: search.dificultad,
+        summary: summary ? summary : search.summary,
+        spoonacularScore: spoonacularScore ? spoonacularScore : search.spoonacularScore,
+        healthScore: healthScore? healthScore : search.healthScore ,
+        steps: steps ? steps : search.steps,
+        diets: diets ? diets : search.diets,
+        image: image ? image : search.diets,
+        createdInDb,   
+       }, //what going to be updated
+      { where: { name: name }} // where clause
+    )   
+   return res.send(result)
+  }else{
+    return res.send("La receta no existe")
+  }
+  })
+
+
+
+
+
+
+
  
  router.get('/recipes/:id', async (req, res) => {
     const id = req.params.id
